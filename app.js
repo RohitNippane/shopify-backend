@@ -203,6 +203,31 @@ app.patch("/product/edit/:id", async (req, res) => {
     }
   });
 
+
+// task-7 create a route to delete product
+app.delete('/product/delete/:id',async(req,res)=>{
+    const {id}=req.params;
+    if(!id){
+        return res.status(400).json({message:'Product id not found'});
+    }
+    try{
+        const deleteProduct=await Product.findByIdAndDelete(id);
+        if(deleteProduct){
+            return res.status(404).json({message:'Product not found'});
+        }
+        res.status(200).json({message:'Product deleted successfully',
+            product:deleteProduct
+        });
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({message:'Internal server error'})
+    }
+
+});
+
+
+
+
 const PORT = 8080;
 app.listen(PORT,()=>{
     console.log(`Server is connected to port ${PORT}`);
