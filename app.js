@@ -139,6 +139,57 @@ app.post('/add-product',async(req,res)=>{
         return res.status(500).json({message:'Internal server error'})
     }
 })
+
+// task-5 -> create a route to see the particular product
+app.get('/product/:id',async(req,res)=>{
+    try{
+        const {id}=req.params;
+        if(!id){
+            return res.status(400).json({message:'Product id is missing'});
+        }
+        const {token}=req.headers;
+        const userEmailFromToken=jwt.verify(token,'supersecret');
+        if(userEmailFromToken.email){
+            const product=await Product.findById(id);
+
+            if(!product){
+                return res.status(400).json({message:'Product not found'});
+            }
+            return res.status(200).json({message:'successfully found',product});
+        }
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({message:'Internal server error'})
+    }
+
+})
+
+// task-6 -> create a route to update the product
+app.patch('/product/edit/:id',async(req,res)=>{
+    const {id}=req.params;
+    const body=req.body.productData;
+    const {name,price,image,brand,stock,description}=req.body;
+    const {token}=req.headers;
+    const userEmail=jwt.verify(token,'supersecret');
+
+    try{
+        if(userEmail.email){
+            const updatedProduct=await Product.findByIdAndUpdate(id,{
+                name,
+                price,
+                image,
+                brand,
+                stock,
+                description
+            });
+            return res.status(200).json({message:'Product updated successfully'});
+    }
+    }
+    catch(error){
+        console.log(error);
+        return res.status(500).json({message:'Internal server error'})
+    }
+})
 const PORT = 8080;
 app.listen(PORT,()=>{
     console.log(`Server is connected to port ${PORT}`);
