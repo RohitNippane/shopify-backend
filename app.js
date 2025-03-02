@@ -165,31 +165,44 @@ app.get('/product/:id',async(req,res)=>{
 })
 
 // task-6 -> create a route to update the product
-app.patch('/product/edit/:id',async(req,res)=>{
-    const {id}=req.params;
-    const body=req.body.productData;
-    const {name,price,image,brand,stock,description}=req.body;
-    const {token}=req.headers;
-    const userEmail=jwt.verify(token,'supersecret');
+app.patch("/product/edit/:id", async (req, res) => {
+    const { id } = req.params;
+    const { token } = req.headers;
+    const body = req.body.productData;
+    const name = body.name;
+    const description = body.description;
+    const image = body.image;
+    const price = body.price;
+    const brand = body.brand;
+    const stock = body.stock;
+    const userEmail = jwt.verify(token, "supersecret");
+    try {
+      console.log({
+        name,
+        description,
+        image,
+        price,
+        brand,
+        stock,
+      });
+      if (userEmail.email) {
+        const updatedProduct = await Product.findByIdAndUpdate(id, {
+          name,
+          description,
+          image,
+          price,
+          brand,
+          stock,
+        });
+        res.status(200).json({ message: "Product Updated Succesfully" });
+      }
+    } catch (error) {
+      res.status(400).json({
+        message: "Internal Server Error Occured While Updating Product",
+      });
+    }
+  });
 
-    try{
-        if(userEmail.email){
-            const updatedProduct=await Product.findByIdAndUpdate(id,{
-                name,
-                price,
-                image,
-                brand,
-                stock,
-                description
-            });
-            return res.status(200).json({message:'Product updated successfully'});
-    }
-    }
-    catch(error){
-        console.log(error);
-        return res.status(500).json({message:'Internal server error'})
-    }
-})
 const PORT = 8080;
 app.listen(PORT,()=>{
     console.log(`Server is connected to port ${PORT}`);
