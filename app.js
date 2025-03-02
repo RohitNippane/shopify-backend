@@ -225,9 +225,20 @@ app.delete('/product/delete/:id',async(req,res)=>{
 
 });
 
-
-
-
+// task-8 search product
+app.get('/product/search/:keyword',async(req,res)=>{
+    const {keyword}=req.params;
+    try{
+        const products=await Product.find({name:{$regex:keyword,$options:'i'}});
+        if(products.length === 0){
+            return res.status(404).json({message:'No product found'});
+        }
+        return res.status(200).json({message:'Product found',products:product});
+    }catch(error){
+        console.log(error);
+        return res.status(500).json({message:'Internal server error'})
+    }
+})
 const PORT = 8080;
 app.listen(PORT,()=>{
     console.log(`Server is connected to port ${PORT}`);
